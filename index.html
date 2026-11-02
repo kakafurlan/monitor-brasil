@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitor Brasil — Real × Bitcoin · Área Bitcoin</title>
+<meta name="description" content="Monitor da economia brasileira, ao vivo: inflação, corrosão do Real, juros do cartão, endividamento das famílias, dívida pública, Pix e Bitcoin — com dados do Banco Central, IBGE, FMI, BIS e outras fontes abertas.">
+<meta name="theme-color" content="#07060a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Monitor Brasil — Real × Bitcoin · Área Bitcoin">
+<meta property="og:description" content="Quanto o Real já perdeu de poder de compra? Inflação, juros, dívida, Pix e a proteção do Bitcoin — com fontes oficiais e atualização contínua.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2307060a'/%3E%3Cpath d='M9 22V10h7a3.4 3.4 0 010 6.8H9m7 0a3.6 3.6 0 010 7.2H9' fill='none' stroke='%23ff8a00' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' transform='translate(2 -2)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/museu.css">
+</head>
+<body data-tab="painel">
+<script>document.body.dataset.tab=(location.hash.replace(/^#\/?/,"").split("/")[0])||"painel";</script>
+
+<div class="tape" aria-label="Indicadores"><div class="tape-track" id="tapeTrack"></div></div>
+
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <a class="brand" href="#/painel" aria-label="Monitor Brasil — início">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#ff8a00"/><path d="M11 23V9h6.2a3.6 3.6 0 010 7.2H11m6.2 0a3.8 3.8 0 010 7.6H11M14 7v2M18 7v2M14 23v2M18 23v2" fill="none" stroke="#07060a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="brand-name">Área Bitcoin</span><span class="brand-sub">Monitor Brasil</span>
+    </a>
+    <div class="top-right">
+      <span class="live" title=""><i class="live-dot" id="liveDot"></i><span id="liveTxt">…</span></span>
+      <span class="clock mono" id="clock"></span>
+      <div class="lang" id="lang" role="group" aria-label="Idioma / Language"><button type="button" data-l="pt">PT</button><button type="button" data-l="en">EN</button></div>
+    </div>
+  </div>
+</header>
+
+<section class="banner" id="banner">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="wrap banner-in">
+    <div class="hero-copy" id="heroCopy"></div>
+    <div class="page-head" id="pageHead"></div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Seções do monitor">
+  <div class="wrap tabs-row" id="tabsRow" role="tablist"><span class="tab-ink" id="tabInk"></span></div>
+</nav>
+
+<main class="wrap" id="main">
+  <div id="emptyNotice"></div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-row" id="footRow"></div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px;color:#fff">Este monitor precisa de JavaScript para desenhar os gráficos e buscar os dados ao vivo.</p></noscript>
+
+<script src="vendor/echarts.min.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/museu/acervo.js"></script>
+<script src="assets/js/geo-data.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/live.js"></script>
+<script src="assets/js/sgs-catalog.js"></script>
+<script src="assets/js/bootstrap.js"></script>
+<script src="assets/js/bootstrap-extras.js"></script>
+<script src="assets/js/hero.js"></script>
+<script src="assets/js/tab-painel.js"></script>
+<script src="assets/js/tab-poder.js"></script>
+<script src="assets/js/tab-inflacao.js"></script>
+<script src="assets/js/tab-juros.js"></script>
+<script src="assets/js/tab-familias.js"></script>
+<script src="assets/js/tab-divida.js"></script>
+<script src="assets/js/tab-pix.js"></script>
+<script src="assets/js/tab-bitcoin.js"></script>
+<script src="assets/js/museu-historia.js"></script>
+<script src="assets/js/tab-museu.js"></script>
+<script src="assets/js/tab-dados.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

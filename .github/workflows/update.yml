@@ -1,0 +1,71 @@
+name: Atualizar dados e publicar
+
+# Coleta os dados oficiais (Banco Central, IBGE, FMI, BIS, Ipeadata…), grava data/*.json no repositório
+# e publica o site no GitHub Pages. Roda a cada 2 horas, a pedido (botão "Run workflow") e a cada push.
+on:
+  schedule:
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Recoletar todo o histórico (--full)"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths-ignore: ["data/**"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: monitor-brasil
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Coletar dados
+        run: |
+          FLAGS=""
+          # primeira execução (manifesto vazio) ou pedido manual: recoleta tudo
+          if ! grep -q '"updated"' data/manifest.json 2>/dev/null || [ "${{ inputs.full }}" = "true" ]; then FLAGS="--full"; fi
+          node scripts/collect.mjs $FLAGS
+      - name: Gravar dados no repositório
+        run: |
+          git config user.name  "monitor-brasil-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "dados: atualização automática $(date -u +'%Y-%m-%d %H:%M') UTC"
+          git push
+
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - name: Montar o site (sem scripts, sem caches)
+        run: |
+          mkdir _site
+          cp -r index.html assets vendor data _site/
+          rm -f _site/data/_cache-*.json
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
