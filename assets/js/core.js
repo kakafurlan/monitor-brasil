@@ -292,9 +292,10 @@
   MB.countUp = (el, to, f, ms = 1300) => {
     if (!el || !ok(to)) { if (el) el.textContent = f ? f(to) : "—"; return; }
     if (document.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = f(to); el._v = to; return; }   // aba em segundo plano: o navegador pausa a animação
-    const t0 = performance.now(), from = el._v ?? 0;
-    const step = (t) => { const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3); el._v = from + (to - from) * e; el.textContent = f(el._v); if (k < 1) requestAnimationFrame(step); else { el._v = to; el.textContent = f(to); } };
+    const t0 = performance.now(), from = el._v ?? 0, id = (el._cu = (el._cu || 0) + 1), done = () => { el._v = to; el.textContent = f(to); };
+    const step = (t) => { if (el._cu !== id) return; const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3); el._v = from + (to - from) * e; el.textContent = f(el._v); if (k < 1) requestAnimationFrame(step); else done(); };
     requestAnimationFrame(step);
+    setTimeout(() => { if (el._cu === id && el._v !== to) done(); }, ms + 300);   // rede de segurança: se o navegador pausar a animação (painel/aba em segundo plano), o valor final aparece mesmo assim
   };
   MB.flash = (el, up) => { if (!el) return; el.classList.remove("flash-up", "flash-down"); void el.offsetWidth; el.classList.add(up ? "flash-up" : "flash-down"); setTimeout(() => el.classList.remove("flash-up", "flash-down"), 600); };
   MB.reveal = (root = document) => {
