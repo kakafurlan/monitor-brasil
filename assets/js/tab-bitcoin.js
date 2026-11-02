@@ -32,7 +32,7 @@
   const firstBtc = () => MB.ymAdd(MB.D.btc?.brlM?.[0]?.[0] || "2010-07", 1);
   function simulate() {
     const s = st.sim, btc = MB.mapOf(MB.btcM()), usd = MB.mapOf(MB.ptaxM()), cdiRates = MB.mapOf(MB.ser("cdiMes")); let from = s.from || MB.ymAdd(MB.nowYm(), -60); if (from < firstBtc()) from = firstBtc();
-    const now = MB.nowYm(), out = { btc: [], usd: [], cdi: [], need: [], inv: [] }; let units = { btc: 0, usd: 0 }, cdi = 0, invested = 0, need = 0, first = true;
+    const now = MB.nowYm(), out = { btc: [], usd: [], cdi: [], need: [], inv: [] }; let units = { btc: 0, usd: 0 }, cdi = 0, invested = 0, need = 0, first = true, lastU = null;
     const lastCdi = MB.lastOf(MB.ser("cdiMes"))[0];
     for (let ym = from; ym <= now; ym = MB.ymAdd(ym, 1)) {
       const prev = MB.ymAdd(ym, -1), pB = btc.get(prev), pU = usd.get(prev), P0 = MB.P(prev); if (!pB || !pU || !P0) continue;
@@ -40,8 +40,10 @@
       if (put) { units.btc += put / pB; units.usd += put / pU; cdi += put; invested += put; need += put; }
       need *= MB.P(ym) / P0; // custo de vida do mês
       if (ym <= lastCdi) cdi *= 1 + (cdiRates.get(ym) || 0) / 100;
-      const vB = btc.get(ym), vU = usd.get(ym); if (vB == null) continue;
-      out.btc.push([ym, units.btc * vB]); out.usd.push([ym, units.usd * (vU || 0)]); out.cdi.push([ym, cdi]); out.need.push([ym, need]); out.inv.push([ym, invested]);
+      /* o PTAX de fim de mês só existe para meses fechados: no mês corrente vale a cotação ao vivo (ou a última conhecida) */
+      const vB = btc.get(ym), vU = usd.get(ym) ?? (ym === now ? MB.usdBrl() : null); if (vB == null) continue;
+      if (vU != null) lastU = vU;
+      out.btc.push([ym, units.btc * vB]); out.usd.push([ym, units.usd * (vU ?? lastU ?? 0)]); out.cdi.push([ym, cdi]); out.need.push([ym, need]); out.inv.push([ym, invested]);
     }
     // o mês corrente usa o preço ao vivo, se houver
     return { ...out, from, invested };
