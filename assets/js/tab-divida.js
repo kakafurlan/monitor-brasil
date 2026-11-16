@@ -87,11 +87,12 @@
 
   MB.tabs.divida = {
     render(panel) {
-      panel.innerHTML = `${tiles()}
+      const ips = MB.govInterestPerSec();
+      panel.innerHTML = `${ips ? `<div class="tickline reveal"><span>${t("Juros que o governo pagou desde que você abriu esta página", "Interest the government has paid since you opened this page")}</span><b class="mono" data-tick="juros">R$ 0</b><small>≈ ${MB.brl(ips, 0)}${t("/segundo, pelos juros nominais dos últimos 12 meses", "/second, from nominal interest over the last 12 months")} ${MB.kindBadges(["est"])}</small></div>` : ""}${tiles()}
         ${MB.sec("01", t("A dívida do governo", "Government debt"), t("A dívida bruta soma tudo o que o governo geral deve. Veja em proporção do PIB e em reais.", "Gross debt adds up everything the general government owes. See it as a share of GDP and in reais."), `<div class="grid2">${debtCard()}${debtBrlCard()}</div>`)}
         ${MB.sec("02", t("Na escala de uma família", "At household scale"), "", scaleHTML())}
         ${MB.sec("03", t("O Brasil entre as economias do mundo", "Brazil among the world's economies"), t("Compare a dívida brasileira com a de outros países. O mapa usa os dados e as projeções do FMI.", "Compare Brazilian debt with other countries'. The map uses the IMF's data and projections."), `<div class="map-wrap"><div>${worldMap()}</div><article class="card"><p class="side-h">${t("Maiores dívidas no ano escolhido", "Largest debts in the chosen year")}</p><div id="divRankHost">${rankInner()}</div><div class="c-foot">${MB.chips(["imf"])}</div></article></div>`)}
-        ${MB.more("div_more", t("Ver mais dados: o que faz a dívida crescer", "See more data: what makes debt grow"), () => `<p class="more-h">${t("Gastos, arrecadação e juros", "Spending, revenue and interest")}</p><div class="grid2">${flowCard()}${resCard()}</div>`, { hint: t("resultado primário, juros e reservas", "primary balance, interest and reserves") })}`;
+        ${MB.more("div_more", t("O que faz a dívida crescer", "What makes debt grow"), () => `<p class="more-h">${t("Gastos, arrecadação e juros", "Spending, revenue and interest")}</p><div class="grid2">${flowCard()}${resCard()}</div>`, { hint: t("resultado primário, juros e reservas", "primary balance, interest and reserves") })}`;
     },
     after(panel) {
       const sc = panel.querySelector("#scale"); if (sc) scaleUpdate(sc);

@@ -62,7 +62,7 @@
         ${MB.sec("01", t("Dívida e renda", "Debt and income"), t("O Banco Central mede quanto as famílias devem em relação ao que ganham em um ano e quanto da renda do mês vai para juros e parcelas.", "The central bank measures how much households owe relative to a year's earnings and how much of monthly income goes to interest and instalments."), `<div class="grid2">${endivCard()}${promCard()}</div>`)}
         ${MB.sec("02", t("Atrasos e trabalho", "Arrears and work"), t("Quando a conta não fecha, a dívida vira atraso. E a renda vem do trabalho.", "When the budget does not add up, debt turns into arrears. And income comes from work."), `<div class="grid2">${inadCard()}${jobCard()}</div>`)}
         ${MB.sec("03", t("Seu orçamento", "Your budget"), t("Uma conta rápida para colocar a sua realidade ao lado da média do país.", "A quick calculation to put your reality next to the national average."), budgetHTML())}
-        ${MB.more("fam_more", t("Ver mais dados: crédito e atividade econômica", "See more data: credit and economic activity"), () => `<div class="grid2">${credCard()}${ibcCard()}</div>`, { hint: t("crédito às famílias e IBC-Br", "household credit and IBC-Br") })}`;
+        ${MB.more("fam_more", t("Crédito às famílias e atividade econômica", "Household credit and economic activity"), () => `<div class="grid2">${credCard()}${ibcCard()}</div>`, { hint: t("crédito às famílias e IBC-Br", "household credit and IBC-Br") })}`;
     },
     after(panel) { const b = panel.querySelector("#bud"); if (b) { b.addEventListener("input", () => budgetUpdate(b)); budgetUpdate(b); } },
   };

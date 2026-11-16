@@ -15,7 +15,7 @@
     const pps = MB.pixPerSec();
     return `<div class="hall reveal"><p class="kicker">${t("Pix · desde o lançamento", "Pix · since launch")}</p>
       <div class="big" id="pixBig" data-to="${p.n}">${F(p.n / 1e9, 0)}${t(" bilhões", " billion")}</div>
-      <p>${t(`de transações feitas por brasileiros desde ${MB.ymLabel(p.first)}, movimentando <b>${MB.compact(p.v)}</b>. ${pps ? `No último mês fechado, foram cerca de <b>${F(pps.pps, 0)} Pix por segundo</b>.` : ""}`, `transactions by Brazilians since ${MB.ymLabel(p.first)}, moving <b>${MB.compact(p.v)}</b>. ${pps ? `In the last closed month that was about <b>${F(pps.pps, 0)} Pix per second</b>.` : ""}`)}</p></div>`;
+      <p>${t(`de transações feitas por brasileiros desde ${MB.ymLabel(p.first)}, movimentando <b>${MB.compact(p.v)}</b>. ${pps ? `No último mês fechado, foram cerca de <b>${F(pps.pps, 0)} Pix por segundo</b>.` : ""}`, `transactions by Brazilians since ${MB.ymLabel(p.first)}, moving <b>${MB.compact(p.v)}</b>. ${pps ? `In the last closed month that was about <b>${F(pps.pps, 0)} Pix per second</b>.` : ""}`)}</p>${pps ? `<p class="hall-tick">${t("Desde que você abriu esta página", "Since you opened this page")}: <b class="mono" data-tick="pix">0</b> Pix ${MB.kindBadges(["est"])}</p>` : ""}</div>`;
   }
   function tiles() {
     const p = MB.pixTotals(); if (!p) return "";
@@ -91,7 +91,7 @@
         ${MB.sec("01", t("Ano a ano", "Year by year"), t("Lançado em novembro de 2020, o Pix virou o meio de pagamento mais usado do país. Aqui, o que ele já movimentou.", "Launched in November 2020, Pix became the country's most-used payment method. Here is what it has already moved."), yearCard())}
         ${MB.sec("02", t("Como o Brasil paga", "How Brazil pays"), t("O Pix lado a lado com cartões, boleto e transferências.", "Pix side by side with cards, boleto and transfers."), payCard())}
         ${MB.sec("03", t("O Pix no mundo", "Pix in the world"), t("O Brasil frente aos maiores sistemas de pagamento instantâneo, segundo o Banco de Compensações Internacionais (BIS).", "Brazil against the largest instant-payment systems, according to the Bank for International Settlements (BIS)."), worldCard())}
-        ${MB.more("pix_more", t("Ver mais dados", "See more data"), () => `<p class="more-h">${t("Pix mês a mês", "Pix by month")}</p>${monthCard()}`, { hint: t("série mensal do Banco Central", "central bank monthly series") })}
+        ${MB.more("pix_more", t("Pix mês a mês", "Pix month by month"), () => `<p class="more-h">${t("Pix mês a mês", "Pix by month")}</p>${monthCard()}`, { hint: t("série mensal do Banco Central", "central bank monthly series") })}
         <p class="disclaimer">${t("Fonte: Banco Central do Brasil (estatísticas de meios de pagamento, dados abertos) e BIS (CPMI). O total do Brasil no gráfico mundial usa a contagem do BIS, que pode diferir poucos por cento da contagem do Banco Central usada acima.", "Source: Central Bank of Brazil (payment-methods statistics, open data) and BIS (CPMI). Brazil's total in the world chart uses the BIS count, which can differ by a few percent from the central bank count used above.")}</p>`;
     },
     after(panel) {

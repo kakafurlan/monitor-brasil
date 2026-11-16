@@ -1,7 +1,11 @@
 # Monitor Brasil — Real × Bitcoin · Área Bitcoin Research
 
-Monitor da economia brasileira, ao vivo, em dez abas: **Painel · Poder de compra · Inflação · Juros e crédito ·
-Famílias · Dívida pública · Pix · Bitcoin · Museu do Real · Dados e fontes**. Site estático (HTML + CSS + JavaScript
+Monitor da economia brasileira organizado em cinco áreas, cada uma respondendo a uma pergunta:
+**Visão geral** (a home conta a história em três capítulos: por que importa, quanto o brasileiro perdeu, o que teria
+preservado o poder de compra) · **Seu dinheiro** (poder de compra, salário, inflação e calculadoras) · **Economia
+brasileira** (juros, famílias, dívida pública e Pix) · **Bitcoin** (comparação já descontada a inflação, simulador,
+riscos, escassez e rede) · **Explorar** (Museu do Real, glossário e perguntas frequentes). **Dados e fontes** fica fixo
+no cabeçalho e no rodapé. Cada gráfico mostra a fonte e o tipo de dado (ao vivo, diário, mensal, estimativa ou projeção). Site estático (HTML + CSS + JavaScript
 puro + ECharts), sem servidor, sem chave de API e sem custo: roda no GitHub Pages.
 
 > Todos os números vêm de fontes públicas (Banco Central, IBGE, Ipeadata, Banco Mundial, FMI, BIS, blockchain.com,
@@ -89,7 +93,7 @@ assets/js/bootstrap*.js    busca direta no navegador (Banco Central, Pix, Bitcoi
 assets/js/geo-data.js      contornos embutidos (GERADO por scripts/make-geo.mjs) — permite abrir com duplo clique
 assets/js/museu-historia.js  história contada, ilustrações e a sala do confisco de 1990
 assets/museu/              acervo de fotos licenciadas do museu (acervo.js + img/)
-assets/js/tab-*.js         uma aba por arquivo
+assets/js/tab-*.js         uma página por arquivo (as áreas e a navegação ficam em main.js)
 assets/geo/                contornos (Natural Earth, domínio público, via pacote datamaps/MIT; simplificados)
 scripts/sources.mjs        catálogo único: séries do BC, provedores e moedas
 scripts/collect.mjs        coletor (Node, sem dependências)

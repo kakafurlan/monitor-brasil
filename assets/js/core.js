@@ -2,7 +2,7 @@
  * Todos os módulos se penduram em window.MB. Sem dependências além do ECharts. */
 (() => {
   "use strict";
-  const MB = (window.MB = { version: "3.0", tabs: {} });
+  const MB = (window.MB = { version: "4.0", tabs: {} });
 
   /* ------------------------- eventos ------------------------- */
   const ev = {};
@@ -73,6 +73,17 @@
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   MB.$ = $; MB.$$ = $$; MB.esc = esc;
+  /** parâmetros depois de "?" no endereço (#/pagina/ancora?h=5) — usados nos links compartilhados */
+  MB.hashQ = () => new URLSearchParams(location.hash.split("?")[1] || "");
+  MB.shareUrl = (hash) => location.href.split("#")[0].split("?")[0] + hash;
+  MB.share = async (hash, title) => {
+    const url = MB.shareUrl(hash);
+    try { if (navigator.share && matchMedia("(pointer: coarse)").matches) { await navigator.share({ title: title || document.title, url }); return; } } catch (e) { if (e?.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(url); MB.toast(MB.t("Link copiado: quem abrir verá o mesmo resultado.", "Link copied: whoever opens it will see the same result.")); }
+    catch { window.prompt(MB.t("Copie o link:", "Copy the link:"), url); }
+  };
+  MB.shareBtn = (hash, label) => `<button type="button" class="btn btn-sm share" data-share="${esc(hash)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>${label || MB.t("Compartilhar resultado", "Share result")}</button>`;
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-share]"); if (b) MB.share(b.dataset.share); });
   MB.toast = (msg) => { const el = $("#toast"); if (!el) return; el.textContent = msg; el.classList.add("on"); clearTimeout(MB._toast); MB._toast = setTimeout(() => el.classList.remove("on"), 2600); };
   MB.sig = (v, good = "down") => (!ok(v) || v === 0 ? "flat" : (v > 0) === (good === "up") ? "up" : "down"); // cor semântica
 
@@ -177,7 +188,24 @@
     if (!arr.length) return "idle";
     return arr.every((s) => s.ok) ? "" : arr.some((s) => s.ok) ? "warn" : "err";
   };
-  MB.chips = (keys) => `<div class="chips">${(keys || []).map((k) => {
+  /* tipo de dado: ao vivo, diário, mensal, anual, estimativa, projeção — aparece ao lado de cada fonte */
+  const KIND_L = { live: ["ao vivo", "live"], daily: ["diário", "daily"], monthly: ["mensal", "monthly"], quarterly: ["trimestral", "quarterly"], annual: ["anual", "annual"], est: ["estimativa", "estimate"], proj: ["projeção", "projection"] };
+  const KIND_TIP = { live: ["atualiza sozinho enquanto a página está aberta", "updates by itself while the page is open"], daily: ["dado oficial divulgado a cada dia útil", "official data published every business day"], monthly: ["dado oficial divulgado uma vez por mês", "official data published once a month"], quarterly: ["dado oficial divulgado a cada trimestre", "official data published every quarter"], annual: ["dado oficial anual", "official annual data"], est: ["cálculo aproximado feito pelo monitor a partir de dados oficiais", "approximate calculation by the monitor from official data"], proj: ["expectativa ou projeção — não é dado realizado", "expectation or projection — not realised data"] };
+  MB.kindsOf = (keys = []) => {
+    const s = new Set();
+    for (const k of keys) {
+      if (["live", "fx", "mempool"].includes(k)) s.add("live");
+      else if (k === "sgs:ptax" || k === "sgs:selicMeta") s.add("daily");
+      else if (k.startsWith("sgs:") || ["btc", "mpv", "pix", "pixuf", "ibge"].includes(k)) s.add("monthly");
+      else if (k === "focus") s.add("proj");
+      else if (k === "imf") { s.add("annual"); s.add("proj"); }
+      else if (["wb", "bis"].includes(k)) s.add("annual");
+    }
+    const order = ["live", "daily", "monthly", "quarterly", "annual", "est", "proj"];
+    return [...s].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  };
+  MB.kindBadges = (kinds = []) => kinds.filter((k) => KIND_L[k]).map((k) => `<span class="kind k-${k}" title="${esc(MB.t(...KIND_TIP[k]))}">${MB.t(...KIND_L[k])}</span>`).join("");
+  MB.chips = (keys, kinds) => `<div class="chips">${MB.kindBadges(kinds || MB.kindsOf(keys || []))}${(keys || []).map((k) => {
     const s = MB.srcInfo(k); if (!s) return ""; s.key = k;
     const cls = MB.chipState(s);
     const tip = (s.last ? `${MB.t("último dado", "latest")}: ${MB.perLabel(s.last)} · ` : "") + MB.t("abrir fonte", "open source");
@@ -212,7 +240,7 @@
       <div class="c-body" role="img" aria-label="${esc(MB.L(def.title))}"${def.height ? ` style="height:${def.height}px"` : ""}></div>
       ${def.below ? `<div data-below>${typeof def.below === "function" ? def.below() : def.below}</div>` : ""}
       <div class="c-table" hidden></div>
-      <div class="c-foot">${MB.chips(def.src || [])}<div class="c-tools">${def.noTable ? "" : `<button type="button" data-tbl>${MB.t("Ver tabela", "Show table")}</button><button type="button" data-csv>CSV</button>`}</div></div>`;
+      <div class="c-foot">${MB.chips(def.src || [], def.kind)}<div class="c-tools">${def.noTable ? "" : `<button type="button" data-tbl>${MB.t("Ver tabela", "Show table")}</button><button type="button" data-csv>CSV</button>`}</div></div>`;
     const body = $(".c-body", el);
     el._render = () => {
       let out; try { out = def.build(def.range, el); } catch (e) { console.error("[gráfico " + id + "]", e); out = null; }

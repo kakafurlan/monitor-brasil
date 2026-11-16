@@ -1,4 +1,4 @@
-/* Aba BITCOIN — preço ao vivo, "e se eu tivesse comprado?", riscos (quedas e janelas), escassez e rede. */
+/* BITCOIN — na ordem: comparação já descontada a inflação, simulador de aportes, riscos (quedas e janelas), preço, escassez e rede. */
 (() => {
   "use strict";
   const MB = window.MB, C = MB.C, F = MB.fmt, t = (...a) => MB.t(...a);
@@ -70,7 +70,8 @@
         <label>${s.mode === "dca" ? t("Valor por mês (R$)", "Amount per month (R$)") : t("Valor investido (R$)", "Amount invested (R$)")}<div class="in-prefix"><span>R$</span><input id="smAmt" inputmode="decimal" value="${F(s.amt, 2)}"></div></label>
         <label>${t("A partir de", "Starting from")}<input id="smFrom" type="month" value="${from}" min="${firstBtc()}" max="${MB.nowYm()}"></label>
         <div class="presets"><button type="button" data-y="3">3 ${t("anos", "yrs")}</button><button type="button" data-y="5">5 ${t("anos", "yrs")}</button><button type="button" data-y="8">8 ${t("anos", "yrs")}</button><button type="button" data-y="12">12 ${t("anos", "yrs")}</button></div></div>
-        <div class="calc-out" id="smOut">${simOut()}</div></div></div>`;
+        <div class="calc-out" id="smOut">${simOut()}</div></div>
+      <div class="ctas-row" style="margin-top:12px"><button type="button" class="btn btn-sm share" data-share-sim><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>${t("Compartilhar esta simulação", "Share this simulation")}</button></div></div>`;
   }
 
   /* ------------------------- risco: quedas e janelas ------------------------- */
@@ -84,6 +85,7 @@
     for (const yrs of [1, 2, 3, 4, 5, 6]) { const n = 12 * yrs, mult = []; for (let i = 0; i + n < b.length; i++) { const f = MB.P(b[i + n][0]) / MB.P(b[i][0]); if (isFinite(f) && f > 0) mult.push(b[i + n][1] / b[i][1] / f); } if (mult.length >= 6) { mult.sort((x, y) => x - y); out.push({ yrs, n: mult.length, beat: (mult.filter((x) => x > 1).length / mult.length) * 100, min: mult[0], med: mult[(mult.length / 2) | 0], max: mult.at(-1) }); } }
     return out;
   }
+  MB.btcWindows = () => MB.memo("btcWindows", windows);
   const winCard = () => MB.card("bt_win", {
     title: t("Quanto tempo segurando faz diferença?", "Does holding longer make a difference?"), sub: t("Em quantas janelas de N anos o Bitcoin (em reais) superou a inflação — todas as datas possíveis de compra desde 2010", "In how many N-year windows Bitcoin (in reais) beat inflation — every possible purchase date since 2010"), src: ["btc", "sgs:ipca"], height: 340,
     build() {
@@ -122,10 +124,18 @@
 
   MB.tabs.bitcoin = {
     render(panel) {
+      const q = MB.hashQ();   // link compartilhado: #/bitcoin/bitcoin-02?m=dca&v=500&d=2021-11
+      if (location.hash.startsWith("#/bitcoin") && (q.has("m") || q.has("v") || q.has("d"))) {
+        if (["dca", "lump"].includes(q.get("m"))) st.sim.mode = q.get("m");
+        const v = +q.get("v"); if (v > 0 && v < 1e9) st.sim.amt = v;
+        const d = q.get("d"); if (/^\d{4}-\d{2}$/.test(d || "")) st.sim.from = d < firstBtc() ? firstBtc() : d;
+      }
       panel.innerHTML = `${liveTiles()}
-        ${MB.sec("01", t("E se o brasileiro tivesse se protegido com Bitcoin?", "What if Brazilians had protected themselves with Bitcoin?"), t("Simule compras mensais ou únicas em Bitcoin, dólar e CDI e compare com o que seria preciso só para manter o poder de compra.", "Simulate monthly or one-off purchases of Bitcoin, dollars and CDI and compare with what is needed just to keep purchasing power."), `<div class="grid21">${simHTML()}${simCard()}</div>`)}
-        ${MB.sec("02", t("O outro lado: o risco", "The other side: risk"), t("O Bitcoin é volátil. Veja as quedas que já enfrentou e se o tempo de permanência mudou o resultado.", "Bitcoin is volatile. See the falls it has been through and whether holding time changed the outcome."), `<div class="grid2">${ddCard()}${winCard()}</div>`)}
-        ${MB.more("btc_more", t("Ver mais dados: preço, escassez e a rede", "See more data: price, scarcity and the network"), () => `<p class="more-h">${t("Preço e poder de compra", "Price and purchasing power")}</p><div class="grid21">${priceCard()}${satsCard()}</div><p class="more-h">${t("Escassez e rede", "Scarcity and network")}</p><div class="grid21">${supplyCard()}${netHTML()}</div>`, { hint: t("preço, satoshis, oferta e rede ao vivo", "price, satoshis, supply and live network") })}
+        ${MB.sec("01", t("O que aconteceu com o poder de compra?", "What happened to purchasing power?"), t("Bitcoin ao lado de dólar, renda fixa e dinheiro parado — tudo já descontada a inflação, para o período que você escolher.", "Bitcoin next to dollars, fixed income and idle cash — all after inflation, for the period you choose."), MB.shared.realCmp("bt", { page: "bitcoin", anchor: "bitcoin-01" }))}
+        ${MB.sec("02", t("E se eu tivesse comprado aos poucos?", "What if I had bought little by little?"), t("Simule compras mensais ou um aporte único em Bitcoin, dólar e CDI e compare com o que seria preciso só para manter o poder de compra.", "Simulate monthly purchases or a lump sum in Bitcoin, dollars and CDI and compare with what is needed just to keep purchasing power."), `<div class="grid21">${simHTML()}${simCard()}</div>`)}
+        ${MB.sec("03", t("O outro lado: quedas e tempo", "The other side: drawdowns and time"), t("O Bitcoin é volátil. Veja as quedas que já enfrentou e se o tempo de permanência mudou o resultado.", "Bitcoin is volatile. See the falls it has been through and whether holding time changed the outcome."), `<div class="grid2">${ddCard()}${winCard()}</div>`)}
+        ${MB.sec("04", t("Preço e satoshis", "Price and satoshis"), t("O preço desde 2010 e quantos satoshis — a menor fração do Bitcoin — cada real compra.", "The price since 2010 and how many satoshis — Bitcoin's smallest unit — each real buys."), `<div class="grid21">${priceCard()}${satsCard()}</div>`)}
+        ${MB.sec("05", t("Escassez e a rede", "Scarcity and the network"), t("A emissão de novos bitcoins segue um calendário fixo no código, com limite de 21 milhões.", "New-bitcoin issuance follows a schedule fixed in the code, capped at 21 million."), `<div class="grid21">${supplyCard()}${netHTML()}</div>`)}
         <p class="disclaimer">${t("Conteúdo educativo, não é recomendação de investimento. Simulações usam preços históricos de fim de mês, ignoram impostos, taxas e spreads e não garantem resultados futuros. Bitcoin pode perder valor, inclusive de forma acentuada.", "Educational content, not investment advice. Simulations use historical month-end prices, ignore taxes, fees and spreads and do not guarantee future results. Bitcoin can lose value, sometimes sharply.")}</p>`;
     },
     after(panel) {
@@ -133,6 +143,7 @@
       const upd = () => { const amt = MB.parseNum(sim.querySelector("#smAmt").value) || 0, from = sim.querySelector("#smFrom").value; st.sim.amt = amt; if (from) st.sim.from = from; sim.querySelector("#smOut").innerHTML = simOut(); MB.rerender("bt_sim"); };
       sim.addEventListener("input", upd); sim.addEventListener("change", upd);
       sim.addEventListener("click", (e) => {
+        if (e.target.closest("[data-share-sim]")) { const f = st.sim.from || MB.ymAdd(MB.nowYm(), -60); MB.share(`#/bitcoin/bitcoin-02?m=${st.sim.mode}&v=${Math.round(st.sim.amt)}&d=${f}`); return; }
         const m = e.target.closest("[data-mode]"); if (m) { st.sim.mode = m.dataset.mode; sim.outerHTML = simHTML(); MB.tabs.bitcoin.after(panel); MB.rerender("bt_sim"); return; }
         const y = e.target.closest("[data-y]"); if (y) { st.sim.from = MB.ymAdd(MB.nowYm(), -12 * +y.dataset.y); sim.querySelector("#smFrom").value = st.sim.from < firstBtc() ? firstBtc() : st.sim.from; upd(); }
       });
